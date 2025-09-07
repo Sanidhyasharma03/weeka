@@ -87,7 +87,7 @@ const generateImageFromPromptFlow = ai.defineFlow(
     const imageDataUri = media.url!;
     
     // Save metadata and image data URI to Firestore
-    const imageRecord: ImageRecord = {
+    const imageRecord: Omit<ImageRecord, 'id'> = {
       userId: input.userId,
       prompt: input.prompt,
       imageData: imageDataUri, // Storing data URI directly
