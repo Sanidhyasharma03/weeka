@@ -55,7 +55,7 @@ export default function PhixelForgePage() {
           .sort((a, b) => b.createdAt - a.createdAt)
           .map((img: ImageRecord) => ({
             id: img.id!,
-            src: img.downloadUrl,
+            src: img.imageData, // Use imageData directly from Firestore
             title: img.prompt.substring(0, 50) + (img.prompt.length > 50 ? '...' : ''),
             description: img.prompt,
             tags: img.prompt.split(' ').slice(0, 5), // basic tagging from prompt

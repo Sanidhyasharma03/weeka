@@ -12,10 +12,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import { storage } from '@/lib/firebase';
-import { ref, uploadString, getDownloadURL } from 'firebase/storage';
 import { saveImage, type ImageRecord } from '@/lib/firestore';
-import {v4 as uuidv4} from 'uuid';
 
 const GenerateImageFromPromptInputSchema = z.object({
   prompt: z.string().describe('The text prompt to generate the image from.'),
@@ -89,19 +86,11 @@ const generateImageFromPromptFlow = ai.defineFlow(
 
     const imageDataUri = media.url!;
     
-    // Upload to Firebase Storage
-    const imageId = uuidv4();
-    const storagePath = `images/${input.userId}/${imageId}.png`;
-    const storageRef = ref(storage, storagePath);
-    await uploadString(storageRef, imageDataUri, 'data_url');
-    const downloadUrl = await getDownloadURL(storageRef);
-
-    // Save metadata to Firestore
+    // Save metadata and image data URI to Firestore
     const imageRecord: ImageRecord = {
       userId: input.userId,
       prompt: input.prompt,
-      storagePath: storagePath,
-      downloadUrl: downloadUrl,
+      imageData: imageDataUri, // Storing data URI directly
       createdAt: Date.now(),
     };
     const firestoreId = await saveImage(imageRecord);

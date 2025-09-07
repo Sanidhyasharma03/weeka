@@ -6,14 +6,13 @@ export interface ImageRecord {
   id?: string;
   userId: string;
   prompt: string;
-  storagePath: string;
-  downloadUrl: string;
+  imageData: string; // Changed from storagePath and downloadUrl
   createdAt: number;
 }
 
 const IMAGES_COLLECTION = 'images';
 
-export async function saveImage(imageData: ImageRecord) {
+export async function saveImage(imageData: Omit<ImageRecord, 'id'>) {
   try {
     const docRef = await addDoc(collection(db, IMAGES_COLLECTION), imageData);
     return docRef.id;
@@ -21,16 +20,6 @@ export async function saveImage(imageData: ImageRecord) {
     console.error('Error adding document: ', e);
     throw new Error('Could not save image metadata to Firestore.');
   }
-}
-
-export async function getImages(userId: string) {
-  const q = query(collection(db, IMAGES_COLLECTION), where('userId', '==', userId));
-  const querySnapshot = await getDocs(q);
-  const images: ImageRecord[] = [];
-  querySnapshot.forEach((doc) => {
-    images.push({ id: doc.id, ...doc.data() } as ImageRecord);
-  });
-  return images;
 }
 
 export function streamImages(userId: string, callback: (images: ImageRecord[]) => void): Unsubscribe {
@@ -41,6 +30,9 @@ export function streamImages(userId: string, callback: (images: ImageRecord[]) =
             images.push({ id: doc.id, ...doc.data() } as ImageRecord);
         });
         callback(images);
+    }, (error) => {
+        console.error("Error streaming images: ", error);
+        callback([]);
     });
     return unsubscribe;
 }
