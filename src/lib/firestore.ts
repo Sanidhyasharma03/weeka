@@ -1,6 +1,3 @@
-
-'use server';
-
 import { db } from '@/lib/firebase';
 import { collection, addDoc, getDocs, query, where, onSnapshot } from 'firebase/firestore';
 import type { Unsubscribe } from 'firebase/firestore';
