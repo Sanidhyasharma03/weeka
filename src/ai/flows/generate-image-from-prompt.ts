@@ -76,10 +76,10 @@ const generateImageFromPromptFlow = ai.defineFlow(
   },
   async input => {
     const {media} = await ai.generate({
-      prompt: input.prompt,
-      model: 'googleai/imagen-4.0-fast-generate-001',
+      prompt: `generate an image of: ${input.prompt}`,
+      model: 'googleai/gemini-2.5-flash-image-preview',
       config: {
-        seed: input.seed,
+        responseModalities: ['IMAGE'],
         // safetySettings: input.safetySettings, // Safety settings cause errors.
       },
     });
