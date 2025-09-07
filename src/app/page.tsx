@@ -1,70 +1,120 @@
-import Image from "next/image";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarHeader,
-  SidebarInset,
-  SidebarProvider,
-  SidebarSeparator,
-} from "@/components/ui/sidebar";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { MainNav } from "@/components/layout/main-nav";
-import { Header } from "@/components/layout/header";
-import { Gallery } from "@/components/gallery";
-import { ImageGenerator } from "@/components/image-generator";
-import { Icons } from "@/components/icons";
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Icons } from '@/components/icons';
+import { Mountain, Palette, Workflow } from 'lucide-react';
+import Image from 'next/image';
 
-const mockImages = [
-  { id: '1', src: 'https://picsum.photos/seed/img1/800/600', title: 'Mountain Vista', description: 'A beautiful mountain landscape.', tags: ['nature', 'mountain', 'landscape'], dataAiHint: 'mountain landscape' },
-  { id: '2', src: 'https://picsum.photos/seed/img2/800/600', title: 'City at Night', description: 'A bustling city skyline after sunset.', tags: ['city', 'urban', 'night'], dataAiHint: 'city night' },
-  { id: '3', src: 'https://picsum.photos/seed/img3/800/600', title: 'Forest Path', description: 'A quiet path winding through a dense forest.', tags: ['forest', 'nature', 'path'], dataAiHint: 'forest path' },
-  { id: '4', src: 'https://picsum.photos/seed/img4/800/600', title: 'Ocean Waves', description: 'Powerful ocean waves crashing on the shore.', tags: ['ocean', 'sea', 'waves'], dataAiHint: 'ocean waves' },
-  { id: '5', src: 'https://picsum.photos/seed/img5/800/600', title: 'Abstract Shapes', description: 'Colorful abstract geometric shapes.', tags: ['abstract', 'art', 'colorful'], dataAiHint: 'abstract art' },
-  { id: '6', src: 'https://picsum.photos/seed/img6/800/600', title: 'Modern Architecture', description: 'A building with a unique and modern design.', tags: ['architecture', 'modern', 'building'], dataAiHint: 'modern architecture' },
-  { id: '7', src: 'https://picsum.photos/seed/img7/800/600', title: 'Desert Dunes', description: 'Sand dunes stretching across a vast desert.', tags: ['desert', 'sand', 'dunes'], dataAiHint: 'desert dunes' },
-  { id: '8', src: 'https://picsum.photos/seed/img8/800/600', title: 'Wildlife Portrait', description: 'A close-up portrait of a wild animal.', tags: ['animal', 'wildlife', 'portrait'], dataAiHint: 'wildlife portrait' },
-];
-
-export default function PhixelForgePage() {
+export default function LandingPage() {
   return (
-    <SidebarProvider>
-      <Sidebar>
-        <SidebarHeader>
-          <div className="flex items-center gap-3 px-2">
-            <Icons.logo className="size-8" />
-            <h1 className="text-xl font-headline font-semibold">PhixelForge</h1>
-          </div>
-        </SidebarHeader>
-        <SidebarContent>
-          <SidebarGroup>
-            <MainNav />
-          </SidebarGroup>
-          <SidebarSeparator />
-          <SidebarGroup>
-            <ImageGenerator />
-          </SidebarGroup>
-        </SidebarContent>
-        <SidebarFooter>
-          <div className="flex items-center gap-3 px-2">
-            <Avatar>
-              <AvatarImage src="https://picsum.photos/seed/avatar/40/40" alt="User" data-ai-hint="user avatar" />
-              <AvatarFallback>U</AvatarFallback>
-            </Avatar>
-            <div className="flex flex-col">
-              <span className="text-sm font-medium">Admin User</span>
-              <span className="text-xs text-muted-foreground">admin@phixel.forge</span>
+    <div className="flex flex-col min-h-screen">
+      <header className="px-4 lg:px-6 h-14 flex items-center">
+        <Link href="#" className="flex items-center justify-center" prefetch={false}>
+          <Icons.logo className="size-6" />
+          <span className="sr-only">PhixelForge</span>
+        </Link>
+        <nav className="ml-auto flex gap-4 sm:gap-6">
+          <Link
+            href="/dashboard"
+            className="text-sm font-medium hover:underline underline-offset-4"
+            prefetch={false}
+          >
+            Dashboard
+          </Link>
+          <Button asChild>
+            <Link href="/dashboard">Get Started</Link>
+          </Button>
+        </nav>
+      </header>
+      <main className="flex-1">
+        <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48">
+          <div className="container px-4 md:px-6">
+            <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
+              <div className="flex flex-col justify-center space-y-4">
+                <div className="space-y-2">
+                  <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none font-headline">
+                    Unleash Your Creativity with PhixelForge
+                  </h1>
+                  <p className="max-w-[600px] text-muted-foreground md:text-xl">
+                    The ultimate AI-powered media management platform. Organize, edit, and generate stunning visuals
+                    with ease.
+                  </p>
+                </div>
+                <div className="flex flex-col gap-2 min-[400px]:flex-row">
+                  <Button asChild size="lg">
+                    <Link href="/dashboard" prefetch={false}>
+                      Start For Free
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+              <Image
+                src="https://picsum.photos/seed/hero/1200/800"
+                width="1200"
+                height="800"
+                alt="Hero"
+                data-ai-hint="digital art"
+                className="mx-auto aspect-[4/3] overflow-hidden rounded-xl object-cover sm:w-full lg:order-last"
+              />
             </div>
           </div>
-        </SidebarFooter>
-      </Sidebar>
-      <SidebarInset>
-        <Header />
-        <main className="flex-1 p-4 lg:p-6">
-          <Gallery images={mockImages} />
-        </main>
-      </SidebarInset>
-    </SidebarProvider>
+        </section>
+        <section className="w-full py-12 md:py-24 lg:py-32 bg-muted">
+          <div className="container px-4 md:px-6">
+            <div className="flex flex-col items-center justify-center space-y-4 text-center">
+              <div className="space-y-2">
+                <div className="inline-block rounded-lg bg-secondary px-3 py-1 text-sm">Key Features</div>
+                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline">
+                  Everything You Need in One Place
+                </h2>
+                <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+                  PhixelForge provides a comprehensive suite of tools to streamline your creative workflow and bring
+                  your ideas to life.
+                </p>
+              </div>
+            </div>
+            <div className="mx-auto grid max-w-5xl items-center gap-6 py-12 lg:grid-cols-3 lg:gap-12">
+              <div className="grid gap-1">
+                <div className="flex items-center gap-2">
+                  <Palette className="size-6" />
+                  <h3 className="text-xl font-bold">AI Image Generation</h3>
+                </div>
+                <p className="text-muted-foreground">
+                  Create unique images from simple text prompts with our powerful AI generator.
+                </p>
+              </div>
+              <div className="grid gap-1">
+                <div className="flex items-center gap-2">
+                  <Mountain className="size-6" />
+                  <h3 className="text-xl font-bold">Visual Search</h3>
+                </div>
+                <p className="text-muted-foreground">
+                  Find similar images in your library based on visual characteristics or text descriptions.
+                </p>
+              </div>
+              <div className="grid gap-1">
+                <div className="flex items-center gap-2">
+                  <Workflow className="size-6" />
+                  <h3 className="text-xl font-bold">Smart Organization</h3>
+                </div>
+                <p className="text-muted-foreground">
+                  Automatically tag and categorize your media assets for effortless management.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+      <footer className="flex flex-col gap-2 sm:flex-row py-6 w-full shrink-0 items-center px-4 md:px-6 border-t">
+        <p className="text-xs text-muted-foreground">&copy; 2024 PhixelForge. All rights reserved.</p>
+        <nav className="sm:ml-auto flex gap-4 sm:gap-6">
+          <Link href="#" className="text-xs hover:underline underline-offset-4" prefetch={false}>
+            Terms of Service
+          </Link>
+          <Link href="#" className="text-xs hover:underline underline-offset-4" prefetch={false}>
+            Privacy
+          </Link>
+        </nav>
+      </footer>
+    </div>
   );
 }

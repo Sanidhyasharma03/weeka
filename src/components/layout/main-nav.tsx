@@ -6,7 +6,7 @@ import { LayoutDashboard, Folder, Image, Settings, Users } from "lucide-react";
 import { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
 
 const links = [
-  { href: "/", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/albums", label: "Albums", icon: Folder },
   { href: "/collections", label: "Collections", icon: Image },
   { href: "/users", label: "Users", icon: Users },
