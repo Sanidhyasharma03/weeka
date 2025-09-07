@@ -1,4 +1,7 @@
-import Image from "next/image";
+
+'use client';
+
+import * as React from 'react';
 import {
   Sidebar,
   SidebarContent,
@@ -8,26 +11,76 @@ import {
   SidebarInset,
   SidebarProvider,
   SidebarSeparator,
-} from "@/components/ui/sidebar";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { MainNav } from "@/components/layout/main-nav";
-import { Header } from "@/components/layout/header";
-import { Gallery } from "@/components/gallery";
-import { ImageGenerator } from "@/components/image-generator";
-import { Icons } from "@/components/icons";
+} from '@/components/ui/sidebar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { MainNav } from '@/components/layout/main-nav';
+import { Header } from '@/components/layout/header';
+import { Gallery } from '@/components/gallery';
+import { ImageGenerator } from '@/components/image-generator';
+import { Icons } from '@/components/icons';
+import { auth } from '@/lib/firebase';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { useRouter } from 'next/navigation';
+import { streamImages, type ImageRecord } from '@/lib/firestore';
+import type { Unsubscribe } from 'firebase/firestore';
+import { Skeleton } from '@/components/ui/skeleton';
 
-const mockImages = [
-  { id: '1', src: 'https://picsum.photos/seed/img1/800/600', title: 'Mountain Vista', description: 'A beautiful mountain landscape.', tags: ['nature', 'mountain', 'landscape'], dataAiHint: 'mountain landscape' },
-  { id: '2', src: 'https://picsum.photos/seed/img2/800/600', title: 'City at Night', description: 'A bustling city skyline after sunset.', tags: ['city', 'urban', 'night'], dataAiHint: 'city night' },
-  { id: '3', src: 'https://picsum.photos/seed/img3/800/600', title: 'Forest Path', description: 'A quiet path winding through a dense forest.', tags: ['forest', 'nature', 'path'], dataAiHint: 'forest path' },
-  { id: '4', src: 'https://picsum.photos/seed/img4/800/600', title: 'Ocean Waves', description: 'Powerful ocean waves crashing on the shore.', tags: ['ocean', 'sea', 'waves'], dataAiHint: 'ocean waves' },
-  { id: '5', src: 'https://picsum.photos/seed/img5/800/600', title: 'Abstract Shapes', description: 'Colorful abstract geometric shapes.', tags: ['abstract', 'art', 'colorful'], dataAiHint: 'abstract art' },
-  { id: '6', src: 'https://picsum.photos/seed/img6/800/600', title: 'Modern Architecture', description: 'A building with a unique and modern design.', tags: ['architecture', 'modern', 'building'], dataAiHint: 'modern architecture' },
-  { id: '7', src: 'https://picsum.photos/seed/img7/800/600', title: 'Desert Dunes', description: 'Sand dunes stretching across a vast desert.', tags: ['desert', 'sand', 'dunes'], dataAiHint: 'desert dunes' },
-  { id: '8', src: 'https://picsum.photos/seed/img8/800/600', title: 'Wildlife Portrait', description: 'A close-up portrait of a wild animal.', tags: ['animal', 'wildlife', 'portrait'], dataAiHint: 'wildlife portrait' },
-];
+type GalleryImage = {
+  id: string;
+  src: string;
+  title: string;
+  description: string;
+  tags: string[];
+  dataAiHint: string;
+};
 
 export default function PhixelForgePage() {
+  const [user, loadingAuth, errorAuth] = useAuthState(auth);
+  const router = useRouter();
+  const [images, setImages] = React.useState<GalleryImage[]>([]);
+  const [loadingImages, setLoadingImages] = React.useState(true);
+
+  React.useEffect(() => {
+    if (!loadingAuth && !user) {
+      router.push('/auth/signin');
+    }
+  }, [user, loadingAuth, router]);
+
+  React.useEffect(() => {
+    let unsubscribe: Unsubscribe | null = null;
+    if (user) {
+      setLoadingImages(true);
+      unsubscribe = streamImages(user.uid, (firestoreImages) => {
+        const galleryImages = firestoreImages
+          .sort((a, b) => b.createdAt - a.createdAt)
+          .map((img: ImageRecord) => ({
+            id: img.id!,
+            src: img.downloadUrl,
+            title: img.prompt.substring(0, 50) + (img.prompt.length > 50 ? '...' : ''),
+            description: img.prompt,
+            tags: img.prompt.split(' ').slice(0, 5), // basic tagging from prompt
+            dataAiHint: 'ai generated',
+          }));
+        setImages(galleryImages);
+        setLoadingImages(false);
+      });
+    }
+
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
+  }, [user]);
+
+  if (loadingAuth || !user) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Icons.logo className="size-16 animate-pulse" />
+      </div>
+    );
+  }
+
   return (
     <SidebarProvider>
       <Sidebar>
@@ -49,12 +102,12 @@ export default function PhixelForgePage() {
         <SidebarFooter>
           <div className="flex items-center gap-3 px-2">
             <Avatar>
-              <AvatarImage src="https://picsum.photos/seed/avatar/40/40" alt="User" data-ai-hint="user avatar" />
-              <AvatarFallback>U</AvatarFallback>
+              <AvatarImage src={user.photoURL ?? "https://picsum.photos/seed/avatar/40/40"} alt="User" data-ai-hint="user avatar" />
+              <AvatarFallback>{user.email?.charAt(0).toUpperCase() ?? 'U'}</AvatarFallback>
             </Avatar>
             <div className="flex flex-col">
-              <span className="text-sm font-medium">Admin User</span>
-              <span className="text-xs text-muted-foreground">admin@phixel.forge</span>
+              <span className="text-sm font-medium">{user.displayName ?? 'Admin User'}</span>
+              <span className="text-xs text-muted-foreground">{user.email ?? 'admin@phixel.forge'}</span>
             </div>
           </div>
         </SidebarFooter>
@@ -62,7 +115,19 @@ export default function PhixelForgePage() {
       <SidebarInset>
         <Header />
         <main className="flex-1 p-4 lg:p-6">
-          <Gallery images={mockImages} />
+          {loadingImages ? (
+             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                {Array.from({ length: 10 }).map((_, i) => (
+                  <div key={i} className="space-y-2">
+                    <Skeleton className="h-48 w-full" />
+                    <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-4 w-1/2" />
+                  </div>
+                ))}
+             </div>
+          ) : (
+            <Gallery images={images} />
+          )}
         </main>
       </SidebarInset>
     </SidebarProvider>

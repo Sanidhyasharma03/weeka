@@ -12,9 +12,14 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import { storage } from '@/lib/firebase';
+import { ref, uploadString, getDownloadURL } from 'firebase/storage';
+import { saveImage, type ImageRecord } from '@/lib/firestore';
+import {v4 as uuidv4} from 'uuid';
 
 const GenerateImageFromPromptInputSchema = z.object({
   prompt: z.string().describe('The text prompt to generate the image from.'),
+  userId: z.string().describe('The ID of the user generating the image.'),
   seed: z.number().optional().describe('The seed to use for the image generation.'),
   size: z
     .enum(['256x256', '512x512', '1024x1024'])
@@ -53,6 +58,7 @@ const GenerateImageFromPromptOutputSchema = z.object({
     .describe(
       'The generated image as a data URI that must include a MIME type and use Base64 encoding. Expected format: \'data:<mimetype>;base64,<encoded_data>\'.'
     ),
+  firestoreId: z.string().describe('The ID of the document in Firestore.'),
 });
 
 export type GenerateImageFromPromptOutput = z.infer<
@@ -81,6 +87,25 @@ const generateImageFromPromptFlow = ai.defineFlow(
       },
     });
 
-    return {media: media.url!};
+    const imageDataUri = media.url!;
+    
+    // Upload to Firebase Storage
+    const imageId = uuidv4();
+    const storagePath = `images/${input.userId}/${imageId}.png`;
+    const storageRef = ref(storage, storagePath);
+    await uploadString(storageRef, imageDataUri, 'data_url');
+    const downloadUrl = await getDownloadURL(storageRef);
+
+    // Save metadata to Firestore
+    const imageRecord: ImageRecord = {
+      userId: input.userId,
+      prompt: input.prompt,
+      storagePath: storagePath,
+      downloadUrl: downloadUrl,
+      createdAt: Date.now(),
+    };
+    const firestoreId = await saveImage(imageRecord);
+
+    return {media: imageDataUri, firestoreId};
   }
 );

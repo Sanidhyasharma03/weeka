@@ -29,6 +29,8 @@ import { generateImageFromPrompt } from "@/ai/flows/generate-image-from-prompt";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Skeleton } from "./ui/skeleton";
 import { SidebarGroupLabel } from "./ui/sidebar";
+import { auth } from "@/lib/firebase";
+import { useAuthState } from "react-firebase-hooks/auth";
 
 const formSchema = z.object({
   prompt: z.string().min(10, {
@@ -39,6 +41,7 @@ const formSchema = z.object({
 
 export function ImageGenerator() {
   const { toast } = useToast();
+  const [user] = useAuthState(auth);
   const [loading, setLoading] = React.useState(false);
   const [generatedImage, setGeneratedImage] = React.useState<string | null>(null);
 
@@ -51,17 +54,27 @@ export function ImageGenerator() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!user) {
+      toast({
+        variant: "destructive",
+        title: "Not Authenticated",
+        description: "You must be signed in to generate an image.",
+      });
+      return;
+    }
+    
     setLoading(true);
     setGeneratedImage(null);
     try {
       const result = await generateImageFromPrompt({
         prompt: values.prompt,
         size: values.size,
+        userId: user.uid,
       });
       setGeneratedImage(result.media);
       toast({
         title: "Image Generated",
-        description: "Your new image has been successfully created.",
+        description: "Your new image has been successfully created and saved.",
       });
     } catch (error) {
       console.error("Image generation failed:", error);
@@ -146,7 +159,7 @@ export function ImageGenerator() {
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button type="submit" className="w-full" disabled={loading || !user}>
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

@@ -1,6 +1,6 @@
 "use client"
 
-import { Search, Bell, PanelLeft } from "lucide-react"
+import { Search, Bell } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,10 +18,12 @@ import { useToast } from "@/hooks/use-toast"
 import { auth } from "@/lib/firebase"
 import { signOut } from "firebase/auth"
 import { useRouter } from "next/navigation"
+import { useAuthState } from "react-firebase-hooks/auth"
 
 export function Header() {
   const { toast } = useToast();
   const router = useRouter();
+  const [user] = useAuthState(auth);
 
   const handleSearch = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -92,8 +94,8 @@ export function Header() {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-8 w-8 rounded-full">
               <Avatar className="h-9 w-9">
-                <AvatarImage src="https://picsum.photos/seed/avatar/40/40" alt="User" data-ai-hint="user avatar" />
-                <AvatarFallback>U</AvatarFallback>
+                <AvatarImage src={user?.photoURL ?? "https://picsum.photos/seed/avatar/40/40"} alt="User" data-ai-hint="user avatar" />
+                <AvatarFallback>{user?.email?.charAt(0).toUpperCase() ?? 'U'}</AvatarFallback>
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
