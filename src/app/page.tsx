@@ -21,7 +21,7 @@ export default function LandingPage() {
             Dashboard
           </Link>
           <Button asChild>
-            <Link href="/dashboard">Get Started</Link>
+            <Link href="/auth/signup">Get Started</Link>
           </Button>
         </nav>
       </header>
@@ -41,7 +41,7 @@ export default function LandingPage() {
                 </div>
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">
                   <Button asChild size="lg">
-                    <Link href="/dashboard" prefetch={false}>
+                    <Link href="/auth/signup" prefetch={false}>
                       Start For Free
                     </Link>
                   </Button>
