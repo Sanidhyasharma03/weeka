@@ -26,17 +26,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 export default function SettingsPage() {
   const [userName, setUserName] = useState('Admin User');
   const [userEmail, setUserEmail] = useState('admin@phixel.forge');
-  
+
   const handleProfileUpdate = () => {
     console.log('Profile Updated:', { userName, userEmail });
     // In a real application, you would send this data to a backend.
   };
- 
+
   const handlePasswordChange = () => {
     console.log('Password Changed');
     // In a real application, you would send this data to a backend.
   };
- 
+
   return (
     <SidebarProvider>
       <Sidebar>
