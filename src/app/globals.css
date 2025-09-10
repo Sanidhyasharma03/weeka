@@ -1,3 +1,15 @@
+/* Make sure the grid covers the full screen */
+html, body {
+  margin: 0;
+  height: 100%;
+  width: 100%;
+  /* overflow: hidden; Remove to allow scrolling */
+}
+
+body {
+  /* background-color: black; Remove, grid will provide background */
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
