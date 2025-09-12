@@ -12,7 +12,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import { saveImage, type ImageRecord } from '@/lib/firestore';
+import { saveImage, type ImageRecord } from '@/lib/api';
 
 const GenerateImageFromPromptInputSchema = z.object({
   prompt: z.string().describe('The text prompt to generate the image from.'),
@@ -55,7 +55,7 @@ const GenerateImageFromPromptOutputSchema = z.object({
     .describe(
       'The generated image as a data URI that must include a MIME type and use Base64 encoding. Expected format: \'data:<mimetype>;base64,<encoded_data>\'.'
     ),
-  firestoreId: z.string().describe('The ID of the document in Firestore.'),
+  firestoreId: z.string().describe('The ID of the document in PostgreSQL.'),
 });
 
 export type GenerateImageFromPromptOutput = z.infer<
@@ -86,7 +86,7 @@ const generateImageFromPromptFlow = ai.defineFlow(
 
     const imageDataUri = media.url!;
     
-    // Save metadata and image data URI to Firestore
+    // Save metadata and image data URI to PostgreSQL
     const imageRecord: Omit<ImageRecord, 'id'> = {
       userId: input.userId,
       prompt: input.prompt,

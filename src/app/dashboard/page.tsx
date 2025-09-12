@@ -21,8 +21,7 @@ import { Icons } from '@/components/icons';
 import { auth } from '@/lib/firebase';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { useRouter } from 'next/navigation';
-import { streamImages, type ImageRecord } from '@/lib/firestore';
-import type { Unsubscribe } from 'firebase/firestore';
+import { streamImages, type ImageRecord } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
 
 type GalleryImage = {
@@ -47,15 +46,15 @@ export default function PhixelForgePage() {
   }, [user, loadingAuth, router]);
 
   React.useEffect(() => {
-    let unsubscribe: Unsubscribe | null = null;
+    let unsubscribe: (() => void) | null = null;
     if (user) {
       setLoadingImages(true);
-      unsubscribe = streamImages(user.uid, (firestoreImages) => {
-        const galleryImages = firestoreImages
+      unsubscribe = streamImages(user.uid, (postgresImages) => {
+        const galleryImages = postgresImages
           .sort((a, b) => b.createdAt - a.createdAt)
           .map((img: ImageRecord) => ({
             id: img.id!,
-            src: img.imageData, // Use imageData directly from Firestore
+            src: img.imageData, // Use imageData directly from PostgreSQL
             title: img.prompt.substring(0, 50) + (img.prompt.length > 50 ? '...' : ''),
             description: img.prompt,
             tags: img.prompt.split(' ').slice(0, 5), // basic tagging from prompt
